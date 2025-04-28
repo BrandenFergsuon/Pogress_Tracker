@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Progress Tracker</title>
+    <style>
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-red: #d23f31;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --highlight-color: rgba(26, 115, 232, 0.2);
+            
+            /* Gradient variables */
+            --color-bg1: rgb(108, 0, 162);
+            --color-bg2: rgb(0, 17, 82);
+            --color1: 18, 113, 255;
+            --color2: 221, 74, 255;
+            --color3: 100, 220, 255;
+            --color4: 200, 50, 50;
+            --color5: 180, 180, 50;
+            --color-interactive: 140, 100, 255;
+            --circle-size: 80%;
+            --blending: hard-light;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 40px;
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: linear-gradient(40deg, var(--color-bg1), var(--color-bg2));
+        }
+
+        .gradient-bg svg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .gradients-container {
+            filter: url(#goo) blur(40px);
+            width: 100%;
+            height: 100%;
+        }
+
+        .g1 {
+            position: absolute;
+            background: radial-gradient(circle at center, rgba(var(--color1), 0.8) 0, rgba(var(--color1), 0) 50%) no-repeat;
+            mix-blend-mode: var(--blending);
+            width: var(--circle-size);
+            height: var(--circle-size);
+            top: calc(50% - var(--circle-size) / 2);
+            left: calc(50% - var(--circle-size) / 2);
+            transform-origin: center center;
+            animation: moveVertical 30s ease infinite;
+            opacity: 1;
+        }
+
+        .g2 {
+            position: absolute;
+            background: radial-gradient(circle at center, rgba(var(--color2), 0.8) 0, rgba(var(--color2), 0) 50%) no-repeat;
+            mix-blend-mode: var(--blending);
+            width: var(--circle-size);
+            height: var(--circle-size);
+            top: calc(50% - var(--circle-size) / 2);
+            left: calc(50% - var(--circle-size) / 2);
+            transform-origin: calc(50% - 400px);
+            animation: moveInCircle 20s reverse infinite;
+            opacity: 1;
+        }
+
+        .g3 {
+            position: absolute;
+            background: radial-gradient(circle at center, rgba(var(--color3), 0.8) 0, rgba(var(--color3), 0) 50%) no-repeat;
+            mix-blend-mode: var(--blending);
+            width: var(--circle-size);
+            height: var(--circle-size);
+            top: calc(50% - var(--circle-size) / 2 + 200px);
+            left: calc(50% - var(--circle-size) / 2 - 500px);
+            transform-origin: calc(50% + 400px);
+            animation: moveInCircle 40s linear infinite;
+            opacity: 1;
+        }
+
+        .g4 {
+            position: absolute;
+            background: radial-gradient(circle at center, rgba(var(--color4), 0.8) 0, rgba(var(--color4), 0) 50%) no-repeat;
+            mix-blend-mode: var(--blending);
+            width: var(--circle-size);
+            height: var(--circle-size);
+            top: calc(50% - var(--circle-size) / 2);
+            left: calc(50% - var(--circle-size) / 2);
+            transform-origin: calc(50% - 200px);
+            animation: moveHorizontal 40s ease infinite;
+            opacity: 0.7;
+        }
+
+        .g5 {
+            position: absolute;
+            background: radial-gradient(circle at center, rgba(var(--color5), 0.8) 0, rgba(var(--color5), 0) 50%) no-repeat;
+            mix-blend-mode: var(--blending);
+            width: calc(var(--circle-size) * 2);
+            height: calc(var(--circle-size) * 2);
+            top: calc(50% - var(--circle-size));
+            left: calc(50% - var(--circle-size));
+            transform-origin: calc(50% - 800px) calc(50% + 200px);
+            animation: moveInCircle 20s ease infinite;
+            opacity: 1;
+        }
+
+        .interactive {
+            position: absolute;
+            background: radial-gradient(circle at center, rgba(var(--color-interactive), 0.8) 0, rgba(var(--color-interactive), 0) 50%) no-repeat;
+            mix-blend-mode: var(--blending);
+            width: 100%;
+            height: 100%;
+            top: -50%;
+            left: -50%;
+            opacity: 0.7;
+        }
+
+        @keyframes moveInCircle {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes moveVertical {
+            0% { transform: translateY(-50%); }
+            50% { transform: translateY(50%); }
+            100% { transform: translateY(-50%); }
+        }
+
+        @keyframes moveHorizontal {
+            0% { transform: translateX(-50%) translateY(-10%); }
+            50% { transform: translateX(50%) translateY(10%); }
+            100% { transform: translateX(-50%) translateY(-10%); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 300;
+            padding: 5px;
+            border-radius: 4px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        h1:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .date {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            padding: 5px;
+            border-radius: 4px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .date:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px; /* Increased gap between boxes */
+            margin-bottom: 40px; /* Added space below main content */
+        }
+
+        .task-section, .visual-section, .calendar-section, .summary-section, .achievement-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-blue);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .section-title:focus {
+            outline: none;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title svg {
+            margin-right: 10px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            margin-right: 15px;
+            margin-top: 3px;
+        }
+
+        .task-checkbox input {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-blue);
+            cursor: pointer;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .task-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .add-task {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .add-task input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px 0 0 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .add-task input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .add-task button {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .add-task button:hover {
+            background: #0d5bc2;
+        }
+
+        /* Task Progress Slider */
+        .task-progress-container {
+            margin-top: 30px;
+            padding: 20px 0;
+        }
+
+        .task-progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+
+        .task-progress-slider {
+            position: relative;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .task-progress-track {
+            position: absolute;
+            height: 100%;
+            background: var(--primary-blue);
+            border-radius: 4px;
+            width: 10%;
+        }
+
+        .task-progress-thumb {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 3px solid var(--primary-blue);
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: grab;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-progress-thumb:active {
+            cursor: grabbing;
+        }
+
+        .task-progress-value {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        /* Visual Progress Slider */
+        .visual-slider {
+            position: relative;
+            height: 400px; /* Increased height */
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Changed to contain for better image display */
+            background: #f5f5f5;
+        }
+
+        .slide-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .slider-nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.2);
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .slider-dot.active {
+            background: var(--primary-blue);
+        }
+
+        .slider-arrows {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            padding: 0 15px;
+            z-index: 2;
+        }
+
+        .slider-arrow {
+            background: rgba(255, 255, 255, 0.7);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slider-arrow:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .caption-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .caption-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .summary-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            line-height: 1.6;
+            transition: var(--transition);
+            resize: vertical;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .summary-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .save-btn, .load-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .save-btn {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #0d5bc2;
+        }
+
+        .load-btn {
+            background: white;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+        }
+
+        .load-btn:hover {
+            background: rgba(26, 115, 232, 0.1);
+        }
+
+        /* Calendar Styles */
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar th {
+            padding: 10px;
+            text-align: center;
+            background: rgba(245, 245, 245, 0.95);
+            font-weight: 500;
+        }
+
+        .calendar td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid rgba(238, 238, 238, 0.8);
+            cursor: pointer;
+            position: relative;
+            height: 80px;
+            width: 14.28%;
+            vertical-align: top;
+            background: rgba(255, 255, 255, 0.95);
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day {
+            font-weight: bold;
+            font-size: 1rem;
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            z-index: 2;
+        }
+
+        .calendar-day.today {
+            color: var(--primary-blue);
+        }
+
+        .calendar-note {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 5px;
+            font-size: 0.8rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+
+        .calendar-note-preview {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 300px;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .calendar td:hover .calendar-note-preview {
+            display: block;
+        }
+
+        .calendar td.selected {
+            background-color: var(--highlight-color);
+        }
+
+        .calendar td.empty {
+            background: rgba(249, 249, 249, 0.95);
+            cursor: default;
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .calendar-nav button {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .calendar-nav button:hover {
+            background: #0d5bc2;
+        }
+
+        /* Achievement Section */
+        .achievement-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .achievement-item:last-child {
+            border-bottom: none;
+        }
+
+        .achievement-checkbox {
+            margin-right: 15px;
+            margin-top: 3px;
+        }
+
+        .achievement-checkbox input {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-blue);
+            cursor: pointer;
+        }
+
+        .achievement-content {
+            flex: 1;
+        }
+
+        .achievement-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .achievement-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .add-achievement {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .add-achievement input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px 0 0 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .add-achievement input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .add-achievement button {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .add-achievement button:hover {
+            background: #0d5bc2;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .calendar td {
+                height: 60px;
+                font-size: 0.9rem;
+            }
+            
+            .calendar-day {
+                font-size: 0.9rem;
+            }
+            
+            .calendar-note {
+                display: none;
+            }
+            
+            .calendar-note-preview {
+                width: 200px;
+            }
+            
+            .visual-slider {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg">
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="goo">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
+                    <feBlend in="SourceGraphic" in2="goo" />
+                </filter>
+            </defs>
+        </svg>
+        <div class="gradients-container">
+            <div class="g1"></div>
+            <div class="g2"></div>
+            <div class="g3"></div>
+            <div class="g4"></div>
+            <div class="g5"></div>
+            <div class="interactive"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 contenteditable="true">Executive Progress Tracker</h1>
+            <div class="date" contenteditable="true" id="current-date">Loading date...</div>
+        </header>
+
+        <div class="main-content">
+            <div class="task-section">
+                <h2 class="section-title" contenteditable="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="currentColor"/>
+                    </svg>
+                    Key Tasks
+                </h2>
+                <div id="tasks-container">
+                    <div class="task-item">
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="task1">
+                        </div>
+                        <div class="task-content">
+                            <input type="text" class="task-input" placeholder="Task description" value="Quarterly financial review">
+                        </div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="task2" checked>
+                        </div>
+                        <div class="task-content">
+                            <input type="text" class="task-input" placeholder="Task description" value="Team performance evaluation">
+                        </div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="task3">
+                        </div>
+                        <div class="task-content">
+                            <input type="text" class="task-input" placeholder="Task description" value="Strategic partnership meeting">
+                        </div>
+                    </div>
+                </div>
+                <div class="add-task">
+                    <input type="text" id="new-task-input" placeholder="Add new task...">
+                    <button id="add-task-btn">Add</button>
+                </div>
+                
+                <!-- Task Progress Slider -->
+                <div class="task-progress-container">
+                    <div class="task-progress-label">
+                        <span>Task Progress</span>
+                        <span id="progress-percentage">10%</span>
+                    </div>
+                    <div class="task-progress-slider" id="task-progress-slider">
+                        <div class="task-progress-track" id="task-progress-track" style="width: 10%;"></div>
+                        <div class="task-progress-thumb" id="task-progress-thumb" style="left: 10%;"></div>
+                    </div>
+                    <div class="task-progress-value" id="task-progress-value">10% Complete</div>
+                </div>
+            </div>
+
+            <div class="visual-section">
+                <h2 class="section-title" contenteditable="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="currentColor"/>
+                        <path d="M7 12H9V17H7V12ZM11 7H13V17H11V7ZM15 14H17V17H15V14Z" fill="currentColor"/>
+                    </svg>
+                    Visual Progress
+                </h2>
+                <div class="visual-slider" id="visual-slider">
+                    <div class="slider-arrows">
+                        <button class="slider-arrow" id="prev-slide">&lt;</button>
+                        <button class="slider-arrow" id="next-slide">&gt;</button>
+                    </div>
+                    <!-- Slides will be added here -->
+                </div>
+                <div class="slider-nav" id="slider-dots">
+                    <!-- Dots will be added here -->
+                </div>
+                <input type="text" class="caption-input" id="visual-caption" placeholder="Add a caption for your visual progress...">
+            </div>
+
+            <div class="achievement-section">
+                <h2 class="section-title" contenteditable="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                    </svg>
+                    Achievements
+                </h2>
+                <div id="achievements-container">
+                    <div class="achievement-item">
+                        <div class="achievement-checkbox">
+                            <input type="checkbox" id="achievement1">
+                        </div>
+                        <div class="achievement-content">
+                            <input type="text" class="achievement-input" placeholder="Achievement description" value="Completed Q1 targets">
+                        </div>
+                    </div>
+                    <div class="achievement-item">
+                        <div class="achievement-checkbox">
+                            <input type="checkbox" id="achievement2" checked>
+                        </div>
+                        <div class="achievement-content">
+                            <input type="text" class="achievement-input" placeholder="Achievement description" value="Launched new product line">
+                        </div>
+                    </div>
+                </div>
+                <div class="add-achievement">
+                    <input type="text" id="new-achievement-input" placeholder="Add new achievement...">
+                    <button id="add-achievement-btn">Add</button>
+                </div>
+            </div>
+
+            <div class="calendar-section">
+                <h2 class="section-title" contenteditable="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V10H19V20ZM19 8H5V6H19V8ZM12 13H17V17H12V13Z" fill="currentColor"/>
+                    </svg>
+                    Progress Calendar
+                </h2>
+                <div id="calendar-container">
+                    <!-- Calendar will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-section">
+            <h2 class="section-title" contenteditable="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2ZM6 20V4H13V9H18V20H6Z" fill="currentColor"/>
+                </svg>
+                Executive Summary
+            </h2>
+            <textarea class="summary-input" id="executive-summary" placeholder="Enter your weekly executive summary here..."></textarea>
+        </div>
+
+        <div class="action-buttons">
+            <button class="load-btn" id="load-btn">Load Report</button>
+            <button class="save-btn" id="save-btn">Save Report</button>
+        </div>
+    </div>
+
+    <input type="file" id="image-upload" class="file-input" accept="image/*">
+    <input type="file" id="load-upload" class="file-input" accept=".json">
+
+    <script>
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', options);
+            
+            // Initialize visual slider
+            initializeSlider();
+            
+            // Initialize cards
+            initializeCards();
+            
+            // Task management
+            setupTaskManagement();
+            
+            // Achievement management
+            setupAchievementManagement();
+            
+            // Save/load functionality
+            setupSaveLoad();
+            
+            // Initialize calendar
+            generateCalendar(new Date());
+            
+            // Initialize task progress slider
+            setupTaskProgressSlider();
+            
+            // Initialize interactive bubble
+            const interBubble = document.querySelector('.interactive');
+            let curX = 0;
+            let curY = 0;
+            let tgX = 0;
+            let tgY = 0;
+
+            function move() {
+                curX += (tgX - curX) / 20;
+                curY += (tgY - curY) / 20;
+                interBubble.style.transform = `translate(${Math.round(curX)}px, ${Math.round(curY)}px)`;
+                requestAnimationFrame(() => {
+                    move();
+                });
+            }
+
+            window.addEventListener('mousemove', (event) => {
+                tgX = event.clientX;
+                tgY = event.clientY;
+            });
+
+            move();
+        });
+
+        function setupTaskProgressSlider() {
+            const slider = document.getElementById('task-progress-slider');
+            const track = document.getElementById('task-progress-track');
+            const thumb = document.getElementById('task-progress-thumb');
+            const percentage = document.getElementById('progress-percentage');
+            const valueDisplay = document.getElementById('task-progress-value');
+            
+            let isDragging = false;
+            let currentValue = 10; // Starting at 10% as requested
+            
+            function updateSlider(value) {
+                value = Math.max(10, Math.min(100, value)); // Ensure value is between 10 and 100
+                currentValue = value;
+                track.style.width = `${value}%`;
+                thumb.style.left = `${value}%`;
+                percentage.textContent = `${value}%`;
+                valueDisplay.textContent = `${value}% Complete`;
+            }
+            
+            function handleMove(clientX) {
+                if (!isDragging) return;
+                
+                const rect = slider.getBoundingClientRect();
+                let newValue = ((clientX - rect.left) / rect.width) * 100;
+                updateSlider(Math.round(newValue));
+            }
+            
+            thumb.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                thumb.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+            
+            slider.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                handleMove(e.clientX);
+                thumb.style.cursor = 'grabbing';
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                handleMove(e.clientX);
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                thumb.style.cursor = 'grab';
+            });
+            
+            // Initialize at 10%
+            updateSlider(10);
+        }
+
+        function initializeSlider() {
+            const slider = document.getElementById('visual-slider');
+            const dotsContainer = document.getElementById('slider-dots');
+            
+            // Create 5 slides (can be modified)
+            for (let i = 0; i < 5; i++) {
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                slide.dataset.index = i;
+                
+                if (i === 0) {
+                    slide.classList.add('active');
+                    slide.innerHTML = `
+                        <div class="card-placeholder" data-index="${i}">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 5V19H5V5H19ZM19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3Z" fill="currentColor"/>
+                                <path d="M14 10H10V14H14V10Z" fill="currentColor"/>
+                                <path d="M16 10H18V14H16V10Z" fill="currentColor"/>
+                                <path d="M6 10H8V14H6V10Z" fill="currentColor"/>
+                            </svg>
+                            <span>Click to add image</span>
+                        </div>
+                        <div class="slide-caption">Slide ${i + 1}</div>
+                    `;
+                    
+                    // Add click event to placeholder
+                    slide.querySelector('.card-placeholder').addEventListener('click', function() {
+                        document.getElementById('image-upload').setAttribute('data-index', i);
+                        document.getElementById('image-upload').click();
+                    });
+                } else {
+                    slide.innerHTML = `
+                        <div class="card-placeholder" data-index="${i}">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 5V19H5V5H19ZM19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3Z" fill="currentColor"/>
+                                <path d="M14 10H10V14H14V10Z" fill="currentColor"/>
+                                <path d="M16 10H18V14H16V10Z" fill="currentColor"/>
+                                <path d="M6 10H8V14H6V10Z" fill="currentColor"/>
+                            </svg>
+                            <span>Click to add image</span>
+                        </div>
+                        <div class="slide-caption">Slide ${i + 1}</div>
+                    `;
+                    
+                    // Add click event to placeholder
+                    slide.querySelector('.card-placeholder').addEventListener('click', function() {
+                        document.getElementById('image-upload').setAttribute('data-index', i);
+                        document.getElementById('image-upload').click();
+                    });
+                }
+                
+                slider.appendChild(slide);
+                
+                // Create dots
+                const dot = document.createElement('div');
+                dot.className = 'slider-dot';
+                dot.dataset.index = i;
+                if (i === 0) dot.classList.add('active');
+                dotsContainer.appendChild(dot);
+            }
+            
+            // Handle image upload
+            document.getElementById('image-upload').addEventListener('change', function(e) {
+                const index = this.getAttribute('data-index');
+                const file = e.target.files[0];
+                
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const slides = document.querySelectorAll('.slide');
+                        const slide = slides[index];
+                        slide.innerHTML = `
+                            <img src="${event.target.result}" class="card-image" alt="Uploaded visual">
+                            <div class="slide-caption">Slide ${parseInt(index) + 1}</div>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Slider navigation
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.slider-dot');
+            
+            function showSlide(index) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                
+                currentSlide = index;
+                slides[currentSlide].classList.add('active');
+                dots[currentSlide].classList.add('active');
+            }
+            
+            document.getElementById('next-slide').addEventListener('click', function() {
+                let nextSlide = currentSlide + 1;
+                if (nextSlide >= slides.length) nextSlide = 0;
+                showSlide(nextSlide);
+            });
+            
+            document.getElementById('prev-slide').addEventListener('click', function() {
+                let prevSlide = currentSlide - 1;
+                if (prevSlide < 0) prevSlide = slides.length - 1;
+                showSlide(prevSlide);
+            });
+            
+            // Dot navigation
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const slideIndex = parseInt(this.dataset.index);
+                    showSlide(slideIndex);
+                });
+            });
+            
+            // Auto-advance slides (optional)
+            setInterval(() => {
+                let nextSlide = currentSlide + 1;
+                if (nextSlide >= slides.length) nextSlide = 0;
+                showSlide(nextSlide);
+            }, 5000);
+        }
+
+        function initializeCards() {
+            // This is now handled by the slider initialization
+        }
+
+        function setupTaskManagement() {
+            const addTaskBtn = document.getElementById('add-task-btn');
+            const newTaskInput = document.getElementById('new-task-input');
+            const tasksContainer = document.getElementById('tasks-container');
+            
+            addTaskBtn.addEventListener('click', function() {
+                addNewTask();
+            });
+            
+            newTaskInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addNewTask();
+                }
+            });
+            
+            function addNewTask() {
+                const taskText = newTaskInput.value.trim();
+                if (taskText) {
+                    const taskId = 'task-' + Date.now();
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'task-item';
+                    taskItem.innerHTML = `
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="${taskId}">
+                        </div>
+                        <div class="task-content">
+                            <input type="text" class="task-input" placeholder="Task description" value="${taskText}">
+                        </div>
+                    `;
+                    tasksContainer.appendChild(taskItem);
+                    newTaskInput.value = '';
+                }
+            }
+        }
+
+        function setupAchievementManagement() {
+            const addAchievementBtn = document.getElementById('add-achievement-btn');
+            const newAchievementInput = document.getElementById('new-achievement-input');
+            const achievementsContainer = document.getElementById('achievements-container');
+            
+            addAchievementBtn.addEventListener('click', function() {
+                addNewAchievement();
+            });
+            
+            newAchievementInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addNewAchievement();
+                }
+            });
+            
+            function addNewAchievement() {
+                const achievementText = newAchievementInput.value.trim();
+                if (achievementText) {
+                    const achievementId = 'achievement-' + Date.now();
+                    const achievementItem = document.createElement('div');
+                    achievementItem.className = 'achievement-item';
+                    achievementItem.innerHTML = `
+                        <div class="achievement-checkbox">
+                            <input type="checkbox" id="${achievementId}">
+                        </div>
+                        <div class="achievement-content">
+                            <input type="text" class="achievement-input" placeholder="Achievement description" value="${achievementText}">
+                        </div>
+                    `;
+                    achievementsContainer.appendChild(achievementItem);
+                    newAchievementInput.value = '';
+                }
+            }
+        }
+
+        function generateCalendar(date) {
+            const calendarContainer = document.getElementById('calendar-container');
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            
+            // Get first and last days of month
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // Get days in month
+            const daysInMonth = lastDay.getDate();
+            
+            // Get starting day of week (0-6)
+            const startingDay = firstDay.getDay();
+            
+            // Create calendar header
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                              "July", "August", "September", "October", "November", "December"];
+            
+            const calendarHTML = `
+                <div class="calendar-nav">
+                    <button id="prev-month">&lt; Prev</button>
+                    <div class="calendar-title">${monthNames[month]} ${year}</div>
+                    <button id="next-month">Next &gt;</button>
+                </div>
+                <table class="calendar">
+                    <thead>
+                        <tr>
+                            <th>Sun</th>
+                            <th>Mon</th>
+                            <th>Tue</th>
+                            <th>Wed</th>
+                            <th>Thu</th>
+                            <th>Fri</th>
+                            <th>Sat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendar-body">
+                        ${generateCalendarRows(year, month, daysInMonth, startingDay)}
+                    </tbody>
+                </table>
+            `;
+            
+            calendarContainer.innerHTML = calendarHTML;
+            
+            // Add event listeners for navigation
+            document.getElementById('prev-month').addEventListener('click', function() {
+                generateCalendar(new Date(year, month - 1, 1));
+            });
+            
+            document.getElementById('next-month').addEventListener('click', function() {
+                generateCalendar(new Date(year, month + 1, 1));
+            });
+            
+            // Add event listeners for day selection
+            const days = document.querySelectorAll('.calendar td:not(.empty)');
+            days.forEach(day => {
+                day.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('calendar-day')) {
+                        // Toggle selected class when clicking on the day number
+                        this.classList.toggle('selected');
+                    } else if (e.target.tagName === 'TD') {
+                        // Create/update note when clicking elsewhere in the cell
+                        const existingNote = this.querySelector('.calendar-note');
+                        const existingPreview = this.querySelector('.calendar-note-preview');
+                        
+                        if (existingNote) {
+                            const newText = prompt("Edit your note:", existingNote.textContent);
+                            if (newText !== null) {
+                                existingNote.textContent = newText;
+                                if (existingPreview) {
+                                    existingPreview.textContent = newText;
+                                }
+                            }
+                        } else {
+                            const newText = prompt("Add a note for this day:");
+                            if (newText !== null && newText.trim() !== '') {
+                                const note = document.createElement('div');
+                                note.className = 'calendar-note';
+                                note.textContent = newText;
+                                this.appendChild(note);
+                                
+                                const preview = document.createElement('div');
+                                preview.className = 'calendar-note-preview';
+                                preview.textContent = newText;
+                                this.appendChild(preview);
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        
+        function generateCalendarRows(year, month, daysInMonth, startingDay) {
+            let rows = '';
+            let day = 1;
+            const today = new Date();
+            
+            for (let i = 0; i < 6; i++) { // 6 rows max to cover all possibilities
+                // If we've passed the last day, break
+                if (day > daysInMonth) break;
+                
+                rows += '<tr>';
+                
+                for (let j = 0; j < 7; j++) { // 7 days in a week
+                    if (i === 0 && j < startingDay) {
+                        // Empty cells before the first day
+                        rows += '<td class="empty"></td>';
+                    } else if (day > daysInMonth) {
+                        // Empty cells after the last day
+                        rows += '<td class="empty"></td>';
+                    } else {
+                        // Cells with days
+                        const currentDate = new Date(year, month, day);
+                        const isToday = currentDate.getDate() === today.getDate() && 
+                                       currentDate.getMonth() === today.getMonth() && 
+                                       currentDate.getFullYear() === today.getFullYear();
+                        
+                        rows += `
+                            <td data-date="${year}-${month + 1}-${day}">
+                                <div class="calendar-day ${isToday ? 'today' : ''}">${day}</div>
+                            </td>
+                        `;
+                        day++;
+                    }
+                }
+                
+                rows += '</tr>';
+            }
+            
+            return rows;
+        }
+
+        function setupSaveLoad() {
+            const saveBtn = document.getElementById('save-btn');
+            const loadBtn = document.getElementById('load-btn');
+            
+            saveBtn.addEventListener('click', saveReport);
+            loadBtn.addEventListener('click', function() {
+                document.getElementById('load-upload').click();
+            });
+            
+            document.getElementById('load-upload').addEventListener('change', loadReport);
+        }
+
+        function saveReport() {
+            // Gather all data
+            const reportData = {
+                title: document.querySelector('h1').textContent,
+                date: document.getElementById('current-date').textContent,
+                tasks: [],
+                achievements: [],
+                visuals: [],
+                visualCaption: document.getElementById('visual-caption').value,
+                summary: document.getElementById('executive-summary').value,
+                calendarNotes: {},
+                taskProgress: parseInt(document.getElementById('progress-percentage').textContent)
+            };
+            
+            // Save tasks
+            const taskItems = document.querySelectorAll('.task-item');
+            taskItems.forEach(item => {
+                reportData.tasks.push({
+                    text: item.querySelector('.task-input').value,
+                    completed: item.querySelector('input[type="checkbox"]').checked
+                });
+            });
+            
+            // Save achievements
+            const achievementItems = document.querySelectorAll('.achievement-item');
+            achievementItems.forEach(item => {
+                reportData.achievements.push({
+                    text: item.querySelector('.achievement-input').value,
+                    completed: item.querySelector('input[type="checkbox"]').checked
+                });
+            });
+            
+            // Save visuals
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach((slide, index) => {
+                const img = slide.querySelector('img');
+                reportData.visuals.push({
+                    image: img ? img.src : null,
+                    caption: slide.querySelector('.slide-caption') ? slide.querySelector('.slide-caption').textContent : ''
+                });
+            });
+            
+            // Save calendar notes
+            const calendarDays = document.querySelectorAll('.calendar td[data-date]');
+            calendarDays.forEach(day => {
+                const date = day.getAttribute('data-date');
+                const note = day.querySelector('.calendar-note');
+                if (note) {
+                    reportData.calendarNotes[date] = {
+                        note: note.textContent,
+                        selected: day.classList.contains('selected')
+                    };
+                }
+            });
+            
+            // Create download
+            const dataStr = JSON.stringify(reportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Progress_Report_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show feedback
+            alert('Report saved successfully!');
+        }
+
+        function loadReport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const reportData = JSON.parse(event.target.result);
+                    
+                    // Load basic info
+                    document.querySelector('h1').textContent = reportData.title;
+                    document.getElementById('current-date').textContent = reportData.date;
+                    document.getElementById('visual-caption').value = reportData.visualCaption || '';
+                    document.getElementById('executive-summary').value = reportData.summary || '';
+                    
+                    // Load task progress
+                    if (reportData.taskProgress) {
+                        const slider = document.getElementById('task-progress-slider');
+                        const track = document.getElementById('task-progress-track');
+                        const thumb = document.getElementById('task-progress-thumb');
+                        const percentage = document.getElementById('progress-percentage');
+                        const valueDisplay = document.getElementById('task-progress-value');
+                        
+                        const value = Math.max(10, Math.min(100, reportData.taskProgress));
+                        track.style.width = `${value}%`;
+                        thumb.style.left = `${value}%`;
+                        percentage.textContent = `${value}%`;
+                        valueDisplay.textContent = `${value}% Complete`;
+                    }
+                    
+                    // Load tasks
+                    const tasksContainer = document.getElementById('tasks-container');
+                    tasksContainer.innerHTML = '';
+                    
+                    reportData.tasks.forEach(task => {
+                        const taskId = 'task-' + Date.now();
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'task-item';
+                        taskItem.innerHTML = `
+                            <div class="task-checkbox">
+                                <input type="checkbox" id="${taskId}" ${task.completed ? 'checked' : ''}>
+                            </div>
+                            <div class="task-content">
+                                <input type="text" class="task-input" placeholder="Task description" value="${task.text}">
+                            </div>
+                        `;
+                        tasksContainer.appendChild(taskItem);
+                    });
+                    
+                    // Load achievements
+                    const achievementsContainer = document.getElementById('achievements-container');
+                    achievementsContainer.innerHTML = '';
+                    
+                    reportData.achievements.forEach(achievement => {
+                        const achievementId = 'achievement-' + Date.now();
+                        const achievementItem = document.createElement('div');
+                        achievementItem.className = 'achievement-item';
+                        achievementItem.innerHTML = `
+                            <div class="achievement-checkbox">
+                                <input type="checkbox" id="${achievementId}" ${achievement.completed ? 'checked' : ''}>
+                            </div>
+                            <div class="achievement-content">
+                                <input type="text" class="achievement-input" placeholder="Achievement description" value="${achievement.text}">
+                            </div>
+                        `;
+                        achievementsContainer.appendChild(achievementItem);
+                    });
+                    
+                    // Load visuals
+                    if (reportData.visuals && reportData.visuals.length > 0) {
+                        const slides = document.querySelectorAll('.slide');
+                        reportData.visuals.forEach((visual, index) => {
+                            if (index >= slides.length) return;
+                            
+                            const slide = slides[index];
+                            if (visual.image) {
+                                slide.innerHTML = `
+                                    <img src="${visual.image}" class="card-image" alt="Uploaded visual">
+                                    <div class="slide-caption">${visual.caption || `Slide ${index + 1}`}</div>
+                                `;
+                            } else {
+                                slide.innerHTML = `
+                                    <div class="card-placeholder" data-index="${index}">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M19 5V19H5V5H19ZM19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3Z" fill="currentColor"/>
+                                            <path d="M14 10H10V14H14V10Z" fill="currentColor"/>
+                                            <path d="M16 10H18V14H16V10Z" fill="currentColor"/>
+                                            <path d="M6 10H8V14H6V10Z" fill="currentColor"/>
+                                        </svg>
+                                        <span>Click to add image</span>
+                                    </div>
+                                    <div class="slide-caption">${visual.caption || `Slide ${index + 1}`}</div>
+                                `;
+                                
+                                // Reattach click event
+                                slide.querySelector('.card-placeholder').addEventListener('click', function() {
+                                    const idx = this.getAttribute('data-index');
+                                    document.getElementById('image-upload').setAttribute('data-index', idx);
+                                    document.getElementById('image-upload').click();
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Load calendar notes
+                    if (reportData.calendarNotes) {
+                        // First generate the calendar for the current month
+                        generateCalendar(new Date());
+                        
+                        // After a short delay (to allow DOM to update), load the notes
+                        setTimeout(() => {
+                            for (const [date, data] of Object.entries(reportData.calendarNotes)) {
+                                const dayCell = document.querySelector(`.calendar td[data-date="${date}"]`);
+                                if (dayCell) {
+                                    if (data.selected) {
+                                        dayCell.classList.add('selected');
+                                    }
+                                    
+                                    if (data.note) {
+                                        const note = document.createElement('div');
+                                        note.className = 'calendar-note';
+                                        note.textContent = data.note;
+                                        dayCell.appendChild(note);
+                                        
+                                        const preview = document.createElement('div');
+                                        preview.className = 'calendar-note-preview';
+                                        preview.textContent = data.note;
+                                        dayCell.appendChild(preview);
+                                    }
+                                }
+                            }
+                        }, 100);
+                    }
+                    
+                    // Show feedback
+                    alert('Report loaded successfully!');
+                } catch (error) {
+                    alert('Error loading report: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
